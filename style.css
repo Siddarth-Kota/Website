@@ -780,6 +780,9 @@ button{
   height:auto;
   border-radius:2px
 }
+.project-figure.experience-figure{
+  margin:26px 0 0
+}
 .portrait.experience-photo{
   max-width:none;
   margin:26px 0 0

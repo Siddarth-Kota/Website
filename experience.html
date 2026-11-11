@@ -47,7 +47,7 @@
             </div>
             <div class="experience-copy">
               <p>During my internship at AMD, I worked as a Platform Design Engineer Intern in Austin, TX responsible for designing and validating server side motherboard PCBs for AMD's next-generation EPYC processor line. This included PCB rework, designing custom add-in test cards, and testing low speed IO interfaces (I2C, I3C, SPI) using an oscilloscope to ensure signal integrity and follow timing constraints.</p>
-              <p>This internship taught me a lot of fundamental ECE skills like PCB rework and oscilloscope analysis. Overall, it was a great oppurtunity and a valuable learning experience for me to grow and develop as a professional. It also allowed me to hone in on potential career I wanted to pursue moving forward.</p>
+              <p>This internship taught me a lot of fundamental ECE skills like PCB rework and oscilloscope analysis. Overall, it was a great opportunity and a valuable learning experience for me to grow and develop as a professional. It also allowed me to hone in on a potential career I want to pursue moving forward.</p>
               <div class="tags">
                 <span>Hardware validation</span>
                 <span>PCB design</span>
@@ -61,9 +61,22 @@
               <h3>Synergy Lab</h3>
               <p>Undergraduate Researcher</p>
               <span class="location">Georgia Tech</span>
+              <figure class="project-figure experience-figure" aria-labelledby="scale-sim-caption">
+                <div class="project-image-frame">
+                  <div class="window-bar" aria-hidden="true">
+                    <span class="window-lights"><i></i><i></i><i></i></span>
+                    <span class="window-name">scale-sim-eva-timeline.png</span>
+                    <span class="window-size">1712 × 657</span>
+                  </div>
+                  <img src="assets/scale-sim-eva-timeline.png" width="1712" height="657" loading="lazy" decoding="async" alt="SCALE-Sim-EVA execution timeline with one row per unit and operation: four systolic arrays (SA0 to SA3) repeating load, matmul, and store; a reduction unit (RED) running load, reduce, and store; and memory (MEM) streaming loads and stores, ending in a concatenate step.">
+                </div>
+                <figcaption id="scale-sim-caption">
+                  <span>SCALE-Sim-EVA execution timeline: when each systolic array (SA0–SA3), the reduction unit (RED), and memory (MEM) are busy.</span>
+                </figcaption>
+              </figure>
             </div>
             <div class="experience-copy">
-              <p>As part of my research in the Synergy Lab, My PI and I are developing SCALE-Sim-EVA, a simulation tool for analyzing and designing custom AI accelerator architectures. This tool simulates cycle-accurate behaviors of these architectures including memory access, computation intensity, and resource availability and utilization.</p>
+              <p>As part of my research in the Synergy Lab, my PI and I are developing SCALE-Sim-EVA, a simulation tool for analyzing and designing custom AI accelerator architectures. This tool simulates cycle-accurate behaviors of these architectures including memory access, computation intensity, and resource availability and utilization.</p>
               <p>Currently, I have developed GEMM tiling and reduction across four systolic arrays and executed a 512 × 512 × 512 matrix multiplication in 11,201 simulated cycles. In the future, my research is focused on expanding this to implement a full TPU implementation and testing the tool's capabilities using this. This research has given me an important window into architectural design and optimization and has also allowed me to learn how different architectures process data differently and the performance trade-offs involved.</p>
               <div class="tags">
                 <span>AI accelerators</span>
