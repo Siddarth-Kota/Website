@@ -4,11 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#050505">
+    <script>(function(d){if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;d.classList.add('motion');setTimeout(function(){if(!d.classList.contains('motion-ready'))d.classList.remove('motion','intro-pending')},2500)})(document.documentElement)</script>
     <title>Experience — Siddarth Kota</title>
     <meta name="description" content="Siddarth Kota, Georgia Tech computer engineering student. RTL design, verification, processors, and AI accelerators.">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="style.css?v=10">
-    <script src="app.js?v=10" defer>
+    <link rel="stylesheet" href="style.css?v=11">
+    <script src="app.js?v=11" defer>
     </script>
   </head>
   <body class="detail-page">
@@ -40,10 +41,13 @@
               </h3>
               <p>Platform Design Engineer Intern</p>
               <span class="location">Austin, TX</span>
+              <figure class="portrait experience-photo">
+                <img src="assets/amd-internship.jpg" width="960" height="513" loading="lazy" decoding="async" alt="Siddarth Kota at AMD in Austin, seated in front of large white AMD letters with balloon decorations.">
+              </figure>
             </div>
             <div class="experience-copy">
-              <p>I designed and validated server motherboard PCBs and custom test cards, including a PCIe memory card, to support next-generation platform bring-up. I characterized I2C, I3C, and SPI interfaces with oscilloscopes and tested alternative component values through PCB rework.</p>
-              <p>Working with firmware and power teams to reproduce board failures connected the schematic to the behavior of a real system. It also gave me hands-on experience with signal integrity, timing constraints, and the careful process of diagnosing hardware.</p>
+              <p>During my internship at AMD, I worked as a Platform Design Engineer Intern in Austin, TX responsible for designing and validating server side motherboard PCBs for AMD's next-generation EPYC processor line. This included PCB rework, designing custom add-in test cards, and testing low speed IO interfaces (I2C, I3C, SPI) using an oscilloscope to ensure signal integrity and follow timing constraints.</p>
+              <p>This internship taught me a lot of fundamental ECE skills like PCB rework and oscilloscope analysis. Overall, it was a great oppurtunity and a valuable learning experience for me to grow and develop as a professional. It also allowed me to hone in on potential career I wanted to pursue moving forward.</p>
               <div class="tags">
                 <span>Hardware validation</span>
                 <span>PCB design</span>
@@ -59,8 +63,8 @@
               <span class="location">Georgia Tech</span>
             </div>
             <div class="experience-copy">
-              <p>I’m co-developing SCALE-Sim-EVA with a faculty PI, implementing cycle-accurate accelerator execution models, memory transfers, and hardware scheduling. My work includes modular systolic array, reduction, and memory components for customizable accelerator architectures.</p>
-              <p>One implementation tiles GEMM across four systolic arrays and executes a 512 × 512 × 512 matrix multiplication in 11,201 simulated cycles. The research gives me a way to study how computation, scheduling, and data movement shape accelerator behavior.</p>
+              <p>As part of my research in the Synergy Lab, My PI and I are developing SCALE-Sim-EVA, a simulation tool for analyzing and designing custom AI accelerator architectures. This tool simulates cycle-accurate behaviors of these architectures including memory access, computation intensity, and resource availability and utilization.</p>
+              <p>Currently, I have developed GEMM tiling and reduction across four systolic arrays and executed a 512 × 512 × 512 matrix multiplication in 11,201 simulated cycles. In the future, my research is focused on expanding this to implement a full TPU implementation and testing the tool's capabilities using this. This research has given me an important window into architectural design and optimization and has also allowed me to learn how different architectures process data differently and the performance trade-offs involved.</p>
               <div class="tags">
                 <span>AI accelerators</span>
                 <span>Cycle-accurate modeling</span>
@@ -76,8 +80,9 @@
               <span class="location">Georgia Tech</span>
             </div>
             <div class="experience-copy">
-              <p>I’ve worked through ASIC synthesis and physical design on a 7,170-cell design with two SRAM macros using Synopsys Design Compiler and Cadence Innovus, analyzing placement and critical-path timing.</p>
-              <p>I also developed a SystemVerilog verification environment with drivers, monitors, scoreboards, and constrained-random testing to check RISC-V execution, memory stalls, and halt behavior. That work achieved 98.35% DUT code coverage in Cadence Xcelium. Coverage shows which implementation paths were exercised; checking the behavior of those paths is the other essential part of the work.</p>
+              <p>As part of my SiliconJackets onboarding project, I ran an ASIC synthesis and physical design on a 7,170-cell RISC-V partial CPU design with two SRAM macros using Synopsys Design Compiler and Cadence Innovus, analyzing placement and critical-path timing.</p>
+              <p>I also developed a SystemVerilog verification environment with drivers, monitors, scoreboards, and constrained-random testing to validate the processor I designed, including testing memory stalls, and halt behavior. The result of this verification achieved 98.35% DUT code coverage in Cadence Xcelium, showing the percentage of data paths that were exercised.</p>
+              <p>In the future, I have joined the Digital Design team and will start contributing to the annual tapeout of a full RISC-V processor.</p>
               <div class="tags">
                 <span>RTL verification</span>
                 <span>ASIC implementation</span>

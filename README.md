@@ -12,7 +12,7 @@ A static computer engineering portfolio. The homepage fits one screen and resemb
 - `work.html`: project list, with each LINK opening its detailed project explanation.
 - `projects/riscv.html`, `projects/audio.html`, `projects/sensor.html`: detailed project explanations.
 - Project images use a shared `.project-figure` immediately after the project facts and before the write-up, with captions, alt text, and full-size links. The images are `assets/riscv-schematic.png` (CPU schematic), `assets/audio-spectrum.png` (DSP test setup), and `assets/lab-sensor.png` (ESP32 PCB render). Keep image `width` and `height` attributes in sync with replacement files so the browser reserves the correct space.
-- `about.html`, `experience.html`, `roadmap.html`: biography, work/research experience, and career goals.
+- `about.html`, `experience.html`, `roadmap.html`: biography, work/research experience, and career goals. The About page portrait is `assets/portrait.jpg` (720×827); keep the `width`/`height` attributes in sync if you replace it. The AMD photo on the Experience page is `assets/amd-internship.jpg` (960×513).
 - `roadmap.html`: a simple Career goals heading and paragraph; the existing URL is retained.
 - `resume.html`: an embedded copy of the original resume and a download button, both using the PDF already hosted on the live site.
 - `contact.html`: email, LinkedIn, and GitHub links.

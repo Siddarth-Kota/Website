@@ -17,8 +17,8 @@
   to{opacity:0;transform:translateY(-8px)}
 }
 @keyframes page-in{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
+  from{opacity:0}
+  to{opacity:1}
 }
 :root{
   --bg:#050505;
@@ -164,7 +164,6 @@ button{
   margin:16px auto 0;
   padding:24px 28px;
   text-align:center;
-  background:var(--bg);
   color:var(--muted);
   border-radius:3px
 }
@@ -195,20 +194,36 @@ button{
 .intro-trace{
   fill:none;
   stroke:var(--blue);
-  stroke-width:1;
+  stroke-width:1.5;
+  stroke-linejoin:round;
   opacity:.32;
   vector-effect:non-scaling-stroke
 }
 .intro-terminal{
+  opacity:.5
+}
+.intro-terminal .via-ring{
   fill:var(--bg);
   stroke:var(--blue);
-  stroke-width:1;
-  opacity:.5
+  stroke-width:1
+}
+.intro-terminal .via-drill{
+  fill:var(--blue)
+}
+.route-mask{
+  fill:none;
+  stroke:#0e0e0e;
+  stroke-width:6;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  vector-effect:non-scaling-stroke
 }
 .route-line{
   fill:none;
-  stroke:#282828;
-  stroke-width:1;
+  stroke:#2e2e2e;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
   vector-effect:non-scaling-stroke;
   transition:stroke .2s
 }
@@ -218,13 +233,74 @@ button{
 .route-line.is-selected{
   stroke:#3b4b60
 }
-.route-endpoint{
+.route-via .via-ring{
   fill:var(--bg);
-  stroke:#5e5e5e;
-  stroke-width:1
+  stroke:#4e4e4e;
+  stroke-width:1;
+  transition:stroke .2s
+}
+.route-via .via-drill{
+  fill:#6a6a6a;
+  transition:fill .2s
+}
+.route-line.is-hovered+.route-via .via-ring{
+  stroke:#8a8a8a
+}
+.route-line.is-selected+.route-via .via-ring{
+  stroke:var(--blue)
+}
+.route-line.is-selected+.route-via .via-drill{
+  fill:var(--blue)
 }
 .ambient-dot{
   fill:#a3a3a3
+}
+.ambient-dot.packet-dot{
+  fill:#9ccbff
+}
+.ambient-dot.packet-dot.trail{
+  fill:var(--blue)
+}
+/* Bus traffic effects: a pin lighting as a packet passes, a via rippling. */
+.pin-flash{
+  stroke:var(--blue);
+  stroke-width:2.5;
+  stroke-linecap:round;
+  filter:drop-shadow(0 0 3px #4c9cff)
+}
+.via-flash{
+  fill:none;
+  stroke:var(--blue);
+  stroke-width:1.2;
+  transform-box:fill-box;
+  transform-origin:center
+}
+/* Low-power mode: traces and name dim slowly; waking snaps back. */
+.route-line,.intro-trace,.chip-core h1{
+  transition:stroke .2s,opacity .4s
+}
+.is-idle .route-line{
+  stroke:#1c1c1c;
+  transition:stroke 1.8s ease
+}
+.is-idle .intro-trace{
+  opacity:.14;
+  transition:opacity 1.8s ease
+}
+.is-idle .chip-core h1{
+  opacity:.72;
+  transition:opacity 1.8s ease
+}
+/* A short blue spark that runs along a divider line now and then. */
+.divider-pulse{
+  position:absolute;
+  left:0;
+  width:140px;
+  height:1px;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--blue) 50%,transparent);
+  box-shadow:0 0 6px #4c9cff88;
+  will-change:transform,opacity
 }
 .ambient-dot.blue{
   fill:var(--blue)
@@ -236,11 +312,14 @@ button{
 .selected-trail{
   fill:none;
   stroke:var(--blue);
-  stroke-width:2;
+  stroke-width:2.5;
+  stroke-linecap:round;
+  stroke-linejoin:round;
   vector-effect:non-scaling-stroke;
   filter:drop-shadow(0 0 3px #4c9cff66)
 }
 .chip-core{
+  --seal:#1d1d1d;
   position:absolute;
   left:50%;
   top:50%;
@@ -255,7 +334,41 @@ button{
   align-items:center;
   justify-content:center;
   z-index:2;
-  box-shadow:0 0 0 7px #050505,0 0 0 8px #111
+  box-shadow:0 0 0 7px #050505,0 0 0 8px #111,inset 0 0 0 6px #090909,inset 0 0 0 7px var(--seal)
+}
+/* Pin-1 indicator, as etched into the corner of a real package. */
+.pin-one{
+  position:absolute;
+  top:17px;
+  left:17px;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  border:1px solid var(--blue);
+  opacity:.75;
+  pointer-events:none
+}
+.pin-one::after{
+  content:'';
+  position:absolute;
+  inset:2px;
+  border-radius:50%;
+  background:var(--blue)
+}
+/* Layout-tool canvas: a faint placement grid that fades toward the edges.
+   Labels, the chip ring and the intro panel use the page color, so the grid
+   stops short of them like routing clearance. */
+.home-layout::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background-image:radial-gradient(circle,#ffffff17 1px,transparent 1.2px);
+  background-size:24px 24px;
+  background-position:center;
+  -webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 48%,#000 30%,transparent 100%);
+  mask-image:radial-gradient(ellipse 75% 70% at 50% 48%,#000 30%,transparent 100%)
 }
 .chip-core::before,.chip-core::after{
   content:'';
@@ -296,10 +409,13 @@ button{
   bottom:-14px
 }
 .pins-left,.pins-right{
+  --pin-start:11px;
+  --pin-end:13px;
+  --pin-pitch:23px;
   height:64%;
   width:6px;
   top:18%;
-  background:repeating-linear-gradient(to bottom,transparent 0,transparent 11px,#3c3c3c 11px,#3c3c3c 13px,transparent 13px,transparent 23px)
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent var(--pin-start),#3c3c3c var(--pin-start),#3c3c3c var(--pin-end),transparent var(--pin-end),transparent var(--pin-pitch))
 }
 .pins-left{
   left:-14px
@@ -359,7 +475,6 @@ button{
   align-items:flex-start;
   pointer-events:auto;
   padding:12px 14px;
-  background:var(--bg);
   white-space:nowrap
 }
 .port strong{
@@ -446,6 +561,7 @@ button{
   margin-left:4px
 }
 .detail-nav{
+  position:relative;
   max-width:1040px;
   margin:0 auto;
   display:flex;
@@ -628,6 +744,45 @@ button{
   line-height:1.3;
   letter-spacing:-.9px;
   max-width:350px
+}
+/* Portrait framed like the homepage chip: dark package with corner marks. */
+.portrait{
+  position:relative;
+  max-width:300px;
+  margin:0 0 36px;
+  padding:8px;
+  border:1px solid #292929;
+  border-radius:3px;
+  background:#090909
+}
+.portrait::before,.portrait::after{
+  content:'';
+  position:absolute;
+  width:8px;
+  height:8px;
+  pointer-events:none
+}
+.portrait::before{
+  top:-1px;
+  left:-1px;
+  border-top:1px solid #8c8c8c;
+  border-left:1px solid #8c8c8c
+}
+.portrait::after{
+  bottom:-1px;
+  right:-1px;
+  border-bottom:1px solid #8c8c8c;
+  border-right:1px solid #8c8c8c
+}
+.portrait img{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:2px
+}
+.portrait.experience-photo{
+  max-width:none;
+  margin:26px 0 0
 }
 .education-note{
   display:flex;
@@ -858,17 +1013,127 @@ button{
   margin:0 0 44px
 }
 .project-image-frame{
-  padding:12px;
   border:1px solid var(--line);
-  border-radius:4px;
-  background:#0a0a0a
+  border-radius:6px;
+  background:#0a0a0a;
+  overflow:hidden;
+  transition:border-color .25s
+}
+.project-image-frame:hover,.project-image-frame:focus-within{
+  border-color:#3a3a3a
+}
+/* Title bar styled like an EDA tool window: filename and pixel size. */
+.window-bar{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  height:34px;
+  padding:0 14px;
+  border-bottom:1px solid var(--line);
+  background:#0d0d0d;
+  font:10px/1.6 var(--mono);
+  color:#8a8a8a
+}
+.window-lights{
+  display:flex;
+  gap:6px
+}
+.window-lights i{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  border:1px solid #3a3a3a
+}
+.window-lights i:first-child{
+  border-color:var(--blue);
+  background:#4c9cff55
+}
+.window-name{
+  color:#c9c9c9;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+.window-size{
+  margin-left:auto;
+  color:#5f5f5f;
+  white-space:nowrap
 }
 .project-image-frame img{
   display:block;
-  width:100%;
+  width:calc(100% - 24px);
   height:auto;
+  margin:12px;
   border-radius:2px;
-  background:#fff
+  background:#fff;
+  cursor:zoom-in;
+  transition:transform .5s cubic-bezier(.16,1,.3,1)
+}
+.project-image-frame:hover img{
+  transform:scale(1.008)
+}
+.project-image-frame img:focus-visible{
+  outline:2px solid var(--blue);
+  outline-offset:4px
+}
+.image-viewer{
+  width:min(1400px,calc(100vw - 48px));
+  max-width:none;
+  max-height:calc(100svh - 48px);
+  padding:0;
+  border:1px solid #303030;
+  border-radius:8px;
+  background:#0a0a0a;
+  color:var(--text);
+  overflow:hidden
+}
+.image-viewer[open]{
+  display:flex;
+  flex-direction:column;
+  animation:viewer-in .35s cubic-bezier(.16,1,.3,1)
+}
+.image-viewer::backdrop{
+  background:#000000c4;
+  backdrop-filter:blur(6px)
+}
+.image-viewer[open]::backdrop{
+  animation:backdrop-in .3s ease
+}
+.viewer-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:10px 10px 10px 16px;
+  border-bottom:1px solid var(--line);
+  font:10px var(--mono);
+  color:#c9c9c9
+}
+.viewer-close{
+  font:10px var(--mono);
+  color:#9a9a9a;
+  padding:6px 8px;
+  transition:color .2s
+}
+.viewer-close:hover{
+  color:var(--blue)
+}
+.viewer-image{
+  display:block;
+  min-height:0;
+  flex:1;
+  width:100%;
+  object-fit:contain;
+  padding:16px;
+  background:#0a0a0a
+}
+@keyframes viewer-in{
+  from{opacity:0;scale:.97}
+  to{opacity:1;scale:1}
+}
+@keyframes backdrop-in{
+  from{opacity:0}
+  to{opacity:1}
 }
 .project-figure figcaption{
   display:flex;
@@ -918,6 +1183,118 @@ button{
 .case-next a:hover{
   color:var(--blue)
 }
+/* Via reveal: the new page grows out of the clicked via as a circle (the
+   clip-path is animated from app.js). Default page fades are switched off,
+   and header/menu/footer join the page so the circle reveals them too. */
+html[data-transition=reveal]::view-transition-old(root),
+html[data-transition=reveal]::view-transition-new(root){
+  animation:none;
+  mix-blend-mode:normal
+}
+html[data-transition=reveal]::view-transition-old(root){
+  transform-origin:center
+}
+.reveal-wave{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1000;
+  pointer-events:none;
+  overflow:visible;
+  will-change:transform
+}
+.wave-edge{
+  fill:none;
+  stroke:var(--blue);
+  stroke-width:2
+}
+.wave-glow{
+  fill:none;
+  stroke:var(--blue);
+  stroke-width:10;
+  opacity:.14
+}
+html[data-transition=reveal] .detail-header,
+html[data-transition=reveal] .detail-nav,
+html[data-transition=reveal] .detail-footer,
+html[data-transition=reveal] .nav-indicator{
+  view-transition-name:none
+}
+.nav-indicator{
+  position:absolute;
+  background:var(--blue);
+  pointer-events:none;
+  view-transition-name:nav-indicator
+}
+.detail-nav.has-indicator a[aria-current]::after{
+  display:none
+}
+::view-transition-group(nav-indicator){
+  animation-duration:.45s;
+  animation-timing-function:cubic-bezier(.65,0,.35,1)
+}
+/* Motion: homepage intro and content reveals. Hidden states only apply
+   while the html element carries .motion (set inline, removed for
+   reduced motion or if app.js never loads). */
+.motion:not(.motion-ready) .content-shell,
+.intro-pending .chip-core,.intro-pending .port,.intro-pending .home-intro,.intro-pending #routing-layer{
+  opacity:0
+}
+.name-line{
+  display:block
+}
+.name-char{
+  display:inline-block
+}
+.ambient-dot{
+  transition:opacity .8s ease
+}
+.is-intro .ambient-dot{
+  opacity:0;
+  transition:none
+}
+.intro-pulse{
+  fill:none;
+  stroke:var(--blue);
+  stroke-width:2.5;
+  stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 4px #4c9cff)
+}
+.reveal:not(.is-visible){
+  opacity:0
+}
+.reveal.is-visible.instant,.reveal.instant .w>span{
+  animation:none
+}
+.reveal.is-visible{
+  animation:reveal-in .9s cubic-bezier(.16,1,.3,1) var(--d,0ms) backwards
+}
+.w{
+  display:inline-block;
+  overflow:hidden;
+  vertical-align:top;
+  padding:0 .05em .14em;
+  margin:0 -.05em -.14em
+}
+.w>span{
+  display:inline-block
+}
+.reveal:not(.is-visible) .w>span{
+  translate:0 110%
+}
+.is-visible .w>span{
+  animation:word-in 1.05s cubic-bezier(.16,1,.3,1) calc(var(--d,0ms) + var(--wi,0) * 60ms) backwards
+}
+@keyframes reveal-in{
+  from{opacity:0;translate:0 22px}
+  to{opacity:1;translate:0 0}
+}
+@keyframes word-in{
+  from{translate:0 110%}
+  to{translate:0 0}
+}
 @media(min-width:1600px){
   .chip-core{
     width:410px;
@@ -963,6 +1340,12 @@ button{
   .chip-core h1{
     font-size:55px;
     letter-spacing:-3px
+  }
+  .pin-one{
+    top:13px;
+    left:13px;
+    width:6px;
+    height:6px
   }
   .core-kicker{
     font-size:6px;
@@ -1076,6 +1459,10 @@ button{
   }
   .about-statement>p{
     font-size:32px
+  }
+  .portrait{
+    max-width:240px;
+    margin-bottom:28px
   }
   .about-copy p{
     font-size:13px
