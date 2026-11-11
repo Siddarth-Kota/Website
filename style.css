@@ -80,6 +80,11 @@ button{
 a,button{
   -webkit-tap-highlight-color:transparent
 }
+/* After a page change, focus moves to the new page's heading so screen
+   readers announce it. The heading is not interactive, so no outline. */
+[tabindex="-1"]:focus,[tabindex="-1"]:focus-visible{
+  outline:none
+}
 a:focus-visible,button:focus-visible{
   outline:2px solid var(--blue);
   outline-offset:7px
@@ -869,6 +874,18 @@ button{
   border:1px solid var(--line);
   border-radius:4px;
   background:#141414
+}
+.resume-fallback{
+  margin-top:14px;
+  font:10px/1.8 var(--mono);
+  color:var(--dim)
+}
+.resume-fallback a{
+  color:#c9c9c9;
+  transition:color .2s
+}
+.resume-fallback a:hover,.resume-fallback a span{
+  color:var(--blue)
 }
 .resume-preview p{
   padding:24px;

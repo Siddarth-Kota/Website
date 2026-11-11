@@ -14,9 +14,9 @@ A static computer engineering portfolio. The homepage fits one screen and resemb
 - Project images use a shared `.project-figure` immediately after the project facts and before the write-up, with captions, alt text, and full-size links. The images are `assets/riscv-schematic.png` (CPU schematic), `assets/audio-spectrum.png` (DSP test setup), and `assets/lab-sensor.png` (ESP32 PCB render). Keep image `width` and `height` attributes in sync with replacement files so the browser reserves the correct space.
 - `about.html`, `experience.html`, `roadmap.html`: biography, work/research experience, and career goals. The About page portrait is `assets/portrait.jpg` (720×827); keep the `width`/`height` attributes in sync if you replace it. The AMD photo on the Experience page is `assets/amd-internship.jpg` (960×513), and the Synergy Lab chart is `assets/scale-sim-eva-timeline.png` (1712×657).
 - `roadmap.html`: a simple Career goals heading and paragraph; the existing URL is retained.
-- `resume.html`: an embedded copy of the original resume and a download button, both using the PDF already hosted on the live site.
+- `resume.html`: an embedded preview of the resume and a download button, both using the PDF hosted on Google Drive (shared as "Anyone with the link can view"). To update the resume, upload a new version of the same Drive file (Manage versions → Upload new version) so the link stays the same.
 - `contact.html`: email, LinkedIn, and GitHub links.
-- `assets/`: local fonts, their licenses, favicon, and project images. The original resume PDF stays on the live website and is linked from `resume.html`; it is excluded from this public repository.
+- `assets/`: local fonts, their licenses, favicon, and project images. The resume PDF is not stored in this repository; it lives on Google Drive and is linked from `resume.html`.
 - `vercel.json`: Vercel clean-URL settings.
 
 ## Run locally
@@ -31,7 +31,7 @@ Then visit http://localhost:8000.
 
 ## Deployment
 
-The files in this repository are the static site source. The resume PDF is served separately at the URL in `resume.html`. Vercel uses the repository root, framework `Other`, and no build command. The site can also be hosted by any static host. Publishing source to GitHub and deploying to Vercel are separate operations until the project is linked to this repository through Vercel's Git settings.
+The files in this repository are the static site source. The resume PDF is served from Google Drive at the URLs in `resume.html`. Vercel uses the repository root, framework `Other`, and no build command, and is linked to this repository: every push to `main` deploys automatically. The site can also be hosted by any static host.
 
 ## Accessibility and motion
 
@@ -49,4 +49,4 @@ The homepage uses one shared SVG board for the chip, navigation, and quick intro
 
 Current frame checks cover simulated board sizes of 1440 × 900, 1024 × 708, 700 × 620, 390 × 744, 320 × 536, and 844 × 360. Each layout has exactly two frame traces, starting on distinct painted pin centers and overlapping their tips by half a pixel. Checks also cover centered single-paragraph markup, removal of outer wires, equal frame clearance above and below the paragraph, text masks, JavaScript syntax, and CSS structure. The current styling revision has not had a browser visual check.
 
-All ten HTML pages were checked for internal URLs, assets, unique IDs, page headings, and successful local HTTP responses. JavaScript syntax and simulated detail-page navigation checks passed, including fade timing, modifier keys, downloads, external/email/anchor links, reduced-motion changes, and back-navigation reset. Earlier visual checks in Vivaldi confirmed blue pulse navigation and the live PDF loading inside the resume embed.
+All ten HTML pages were checked for internal URLs, assets, unique IDs, page headings, and successful local HTTP responses. JavaScript syntax and simulated detail-page navigation checks passed, including fade timing, modifier keys, downloads, external/email/anchor links, reduced-motion changes, and back-navigation reset. Earlier visual checks in Vivaldi confirmed blue pulse navigation and the resume embed loading.

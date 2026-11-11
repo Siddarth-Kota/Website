@@ -108,10 +108,19 @@
           activeTransition.ready.then(() => {
             const { x, y, radius } = reveal;
             const timing = { duration: 760, easing: 'cubic-bezier(.65,.05,.25,1)', fill: 'both' };
-            const clip = root.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-              { ...timing, pseudoElement: '::view-transition-new(root)' });
-            root.animate({ transform: ['scale(1)', 'scale(.97)'], opacity: [1, .3] },
-              { ...timing, pseudoElement: '::view-transition-old(root)' });
+            let clip;
+            try {
+              clip = root.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+                { ...timing, pseudoElement: '::view-transition-new(root)' });
+              root.animate({ transform: ['scale(1)', 'scale(.97)'], opacity: [1, .3] },
+                { ...timing, pseudoElement: '::view-transition-old(root)' });
+            } catch {
+              // Browsers that cannot animate transition pseudo-elements from
+              // script fall back to the normal crossfade.
+              delete root.dataset.transition;
+              document.querySelector('.reveal-wave')?.remove();
+              return;
+            }
             // The wavefront follows the clip's own eased progress, so the two
             // never drift apart.
             const wave = document.querySelector('.reveal-wave');
@@ -498,8 +507,10 @@
           hovered = on ? link.dataset.route : null;
           routes.forEach((route) => route.path.classList.toggle('is-hovered', route.key === hovered));
         };
-        on(link, 'pointerenter', () => hover(true));
-        on(link, 'pointerleave', () => hover(false));
+        // Touch has no real hover. Skipping it also keeps iOS Safari from
+        // treating the first tap as a hover and needing a second tap.
+        on(link, 'pointerenter', (event) => { if (event.pointerType !== 'touch') hover(true); });
+        on(link, 'pointerleave', (event) => { if (event.pointerType !== 'touch') hover(false); });
         on(link, 'focus', () => hover(true));
         on(link, 'blur', () => hover(false));
         on(link, 'click', (event) => {
