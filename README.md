@@ -2,19 +2,21 @@
 
 Live website: https://siddarth-kota.vercel.app
 
-A static computer engineering portfolio. The homepage fits one screen and resembles a chip through its central name block, pins, and traces. Clicking a section sends a blue signal through its trace before opening a separate content page. The site uses black and white with small blue accents and has no project images.
+A static computer engineering portfolio. The homepage fits one screen and resembles a chip through its central name block, pins, and traces. Clicking a section sends a blue signal through its trace before opening a separate content page. The site uses black and white with small blue accents. Technical images appear on the project detail pages.
 
 ## Where to edit
 
-- `index.html`: homepage name, tagline, and chip navigation links.
+- `index.html`: homepage name, six chip navigation links, and the quick introduction beneath the chip. Edit the paragraph with `id="personal-bio"` for the introduction.
 - `style.css`: black/white/blue palette, chip layout, typography, responsive rules, and content-page styles.
-- `app.js`: trace geometry, ambient data signals, click animation, pause control, and email copy behavior.
-- `work.html`: project list and the upcoming Discovery Project entry.
+- `app.js`: responsive navigation traces, two pin-connected traces framing the introduction, ambient data signals, pulse-before-navigation, and page fade transitions.
+- `work.html`: project list, with each LINK opening its detailed project explanation.
 - `projects/riscv.html`, `projects/audio.html`, `projects/sensor.html`: detailed project explanations.
+- Project images use a shared `.project-figure` immediately after the project facts and before the write-up, with captions, alt text, and full-size links. The images are `assets/riscv-schematic.png` (CPU schematic), `assets/audio-spectrum.png` (DSP test setup), and `assets/lab-sensor.png` (ESP32 PCB render). Keep image `width` and `height` attributes in sync with replacement files so the browser reserves the correct space.
 - `about.html`, `experience.html`, `roadmap.html`: biography, work/research experience, and career goals.
-- `resume.html`: links to view and download the original resume.
+- `roadmap.html`: a simple Career goals heading and paragraph; the existing URL is retained.
+- `resume.html`: an embedded copy of the original resume and a download button, both using the PDF already hosted on the live site.
 - `contact.html`: email, LinkedIn, and GitHub links.
-- `assets/`: local fonts, their licenses, and favicon. The original resume PDF stays on the live website and is linked from `resume.html`; it is excluded from this public repository.
+- `assets/`: local fonts, their licenses, favicon, and project images. The original resume PDF stays on the live website and is linked from `resume.html`; it is excluded from this public repository.
 - `vercel.json`: Vercel clean-URL settings.
 
 ## Run locally
@@ -33,12 +35,16 @@ The files in this repository are the static site source. The resume PDF is serve
 
 ## Accessibility and motion
 
-Section links are real URLs and remain usable without JavaScript. Keyboard focus is visible. Motion can be paused, follows reduced-motion preferences, and stops in hidden tabs. Ctrl/Cmd-click retains the browser's normal new-tab behavior.
+Section links are real URLs and remain usable without JavaScript. Keyboard focus is visible. Ambient signals follow reduced-motion preferences and stop in hidden tabs. With motion enabled, a homepage click completes its blue trace pulse before a short fade; content pages also fade between internal links. Reduced motion skips the pulse, fades, and entry animation. Ctrl/Cmd-click, external links, downloads, email links, and same-page anchors retain the browser's normal behavior.
 
 ## Content still to complete
 
-The ECE Discovery Project has not been identified. Its feature is currently marked as upcoming. Before the Discovery Showcase, add the actual project, at least 400 words describing its process and results, and a project photo/video created by Siddarth. The current image-free design follows the requested revision; the original assignment's five-visual requirement will need to be reconciled before submission.
+The ECE Discovery Project has not been identified. Its placeholder has been removed from Work so the actual entry can be added later. Before the Discovery Showcase, add the actual project, at least 400 words describing its process and results, and a project photo/video created by Siddarth. Project image slots are now available; the original assignment's five-visual requirement still needs to be met before submission.
 
 ## Verification
 
-Internal URLs, assets, unique IDs, page headings, and JavaScript syntax were checked. A simulated DOM check covers trace construction, pulse-before-navigation, destinations, modifier keys, pause/resume, reduced motion, hidden tabs, and back-navigation reset. Browser visual QA was unavailable because the managed browser-control tool was absent.
+The homepage uses one shared SVG board for the chip, navigation, and quick introduction. The navigation board fills the available height above the introduction and expands up to 1920px wide. Desktop navigation uses two columns of three, spaced toward the outer edges with rows at 14%, 50%, and 86% of the board height; narrow screens use two rows of three. The introduction is one centered paragraph with no greeting. Two subtle blue traces start at actual bottom-pin centers and frame the paragraph with equal clearance above and below. The CSS variables `--pin-start`, `--pin-end`, and `--pin-pitch` define both the painted pins and the JavaScript connection positions. The extra outer wires have been removed. An SVG mask keeps the frame traces clear of text and navigation. Geometry updates when the layout, fonts, or introduction size changes.
+
+Current frame checks cover simulated board sizes of 1440 × 900, 1024 × 708, 700 × 620, 390 × 744, 320 × 536, and 844 × 360. Each layout has exactly two frame traces, starting on distinct painted pin centers and overlapping their tips by half a pixel. Checks also cover centered single-paragraph markup, removal of outer wires, equal frame clearance above and below the paragraph, text masks, JavaScript syntax, and CSS structure. The current styling revision has not had a browser visual check.
+
+All ten HTML pages were checked for internal URLs, assets, unique IDs, page headings, and successful local HTTP responses. JavaScript syntax and simulated detail-page navigation checks passed, including fade timing, modifier keys, downloads, external/email/anchor links, reduced-motion changes, and back-navigation reset. Earlier visual checks in Vivaldi confirmed blue pulse navigation and the live PDF loading inside the resume embed.

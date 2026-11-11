@@ -21,7 +21,19 @@ html,body{
 }
 body{
   font:15px/1.8 var(--sans);
-  -webkit-font-smoothing:antialiased
+  -webkit-font-smoothing:antialiased;
+  transition:opacity .18s ease-out
+}
+body.is-leaving{
+  opacity:0;
+  pointer-events:none
+}
+.home-layout,.content-shell{
+  animation:page-arrive .42s cubic-bezier(.2,.7,.2,1)
+}
+@keyframes page-arrive{
+  from{opacity:0;translate:0 8px}
+  to{opacity:1;translate:0 0}
 }
 a{
   color:inherit;
@@ -95,56 +107,48 @@ button{
   min-height:0;
   overflow:hidden;
   display:flex;
-  flex-direction:column
+  flex-direction:column;
+  padding-block:clamp(16px,3svh,40px)
 }
-.home-header{
-  height:80px;
-  flex-shrink:0;
-  padding:0 42px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px
-}
-.home-mark{
-  font:500 28px/1 var(--mono);
-  letter-spacing:-3px
-}
-.home-mark span{
-  color:var(--blue)
-}
-.home-header>p{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  font:8px var(--mono);
-  letter-spacing:1.6px;
-  color:var(--dim);
-  white-space:nowrap
-}
-.home-header>p span{
-  padding-inline:8px;
-  color:#444
-}
-.header-contact{
-  font-size:11px;
-  color:#a7a7a7
-}
-.header-contact:hover{
-  color:#fff
-}
-.header-contact span{
-  color:var(--blue);
-  margin-left:7px
-}
-.chip-stage{
+.home-layout{
   position:relative;
+  isolation:isolate;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
   flex:1;
   min-height:0;
   width:100%;
-  max-width:1440px;
-  align-self:center;
-  isolation:isolate
+  max-width:1920px;
+  padding-block:16px;
+  align-self:center
+}
+.home-intro{
+  position:relative;
+  z-index:1;
+  flex-shrink:0;
+  width:min(680px,calc(100% - 96px));
+  margin:16px auto 0;
+  padding:24px 28px;
+  text-align:center;
+  background:var(--bg);
+  color:var(--muted);
+  border-radius:3px
+}
+#personal-bio{
+  margin:0;
+  font-size:14px;
+  line-height:1.8;
+  text-wrap:balance
+}
+.chip-stage{
+  position:relative;
+  z-index:1;
+  flex:1;
+  min-height:0;
+  width:100%;
+  max-width:none;
+  align-self:center
 }
 #routing-layer{
   position:absolute;
@@ -154,6 +158,19 @@ button{
   overflow:visible;
   pointer-events:none;
   z-index:0
+}
+.intro-trace{
+  fill:none;
+  stroke:var(--blue);
+  stroke-width:1;
+  opacity:.32;
+  vector-effect:non-scaling-stroke
+}
+.intro-terminal{
+  fill:var(--bg);
+  stroke:var(--blue);
+  stroke-width:1;
+  opacity:.5
 }
 .route-line{
   fill:none;
@@ -231,10 +248,13 @@ button{
   pointer-events:none
 }
 .pins-top,.pins-bottom{
+  --pin-start:15px;
+  --pin-end:17px;
+  --pin-pitch:28px;
   width:66%;
   height:6px;
   left:17%;
-  background:repeating-linear-gradient(to right,transparent 0,transparent 15px,#3c3c3c 15px,#3c3c3c 17px,transparent 17px,transparent 28px)
+  background:repeating-linear-gradient(to right,transparent 0,transparent var(--pin-start),#3c3c3c var(--pin-start),#3c3c3c var(--pin-end),transparent var(--pin-end),transparent var(--pin-pitch))
 }
 .pins-top{
   top:-14px
@@ -305,18 +325,12 @@ button{
   flex-direction:column;
   align-items:flex-start;
   pointer-events:auto;
-  padding:8px 11px;
+  padding:12px 14px;
   background:var(--bg);
   white-space:nowrap
 }
-.port-index{
-  font:7px var(--mono);
-  color:#626262;
-  letter-spacing:1.6px;
-  margin-bottom:6px
-}
 .port strong{
-  font-size:24px;
+  font-size:clamp(24px,1.8vw,30px);
   font-weight:400;
   letter-spacing:-.6px;
   line-height:1.25;
@@ -331,12 +345,6 @@ button{
   transform:translate(-3px,3px);
   transition:opacity .2s,transform .2s
 }
-.port-caption{
-  font-size:9px;
-  color:#757575;
-  letter-spacing:.05px;
-  margin-top:5px
-}
 .port:hover strong,.port:focus-visible strong,.port.is-selected strong{
   color:var(--blue)
 }
@@ -344,74 +352,29 @@ button{
   opacity:1;
   transform:translate(0,0)
 }
-.port-work{
-  left:19%;
-  top:27%
+.port-work,.port-about,.port-experience{
+  left:clamp(100px,12%,240px)
 }
-.port-about{
-  left:19%;
-  top:73%
+.port-roadmap,.port-resume,.port-contact{
+  left:calc(100% - clamp(100px,12%,240px))
 }
-.port-experience{
-  left:50%;
-  top:8%
+.port-work,.port-roadmap{
+  top:14%
 }
-.port-roadmap{
-  left:81%;
-  top:27%
-}
-.port-resume{
-  left:81%;
-  top:73%
-}
-.port-contact{
-  left:50%;
-  top:92%
+.port-about,.port-resume{
+  top:50%
 }
 .port-experience,.port-contact{
+  top:86%
+}
+.port{
   align-items:center
-}
-.home-footer{
-  height:66px;
-  flex-shrink:0;
-  padding:0 42px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  color:#666
-}
-.home-footer>p{
-  font:7px var(--mono);
-  letter-spacing:1.6px
-}
-.footer-hint{
-  font-size:9px;
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  color:#626262
-}
-.home-footer button{
-  padding:8px 0;
-  font:8px var(--mono);
-  color:#8b8b8b;
-  display:flex;
-  align-items:center;
-  gap:9px
-}
-.home-footer button:hover{
-  color:#fff
-}
-.motion-symbol{
-  color:#ddd;
-  font-size:11px
 }
 .is-routing .port:not(.is-selected){
   opacity:.45
 }
 .port{
-  transition:opacity .2s
+  transition:opacity .3s ease
 }
 .is-routing .chip-core{
   border-color:#414b5a
@@ -496,6 +459,10 @@ button{
   font-size:clamp(38px,5vw,64px);
   max-width:800px
 }
+.centered-heading{
+  justify-content:center;
+  text-align:center
+}
 .section-heading>p{
   font-size:11px;
   color:var(--dim);
@@ -561,39 +528,6 @@ button{
 }
 .project-card:hover .project-footer span:last-child{
   color:var(--blue)
-}
-.discovery-note{
-  display:flex;
-  align-items:flex-start;
-  gap:22px;
-  padding-top:34px;
-  border-top:1px solid var(--line);
-  margin-top:6px
-}
-.outline-symbol{
-  font:24px var(--mono);
-  color:#888
-}
-.discovery-note .eyebrow{
-  font-size:7px;
-  margin-bottom:7px
-}
-.discovery-note h3{
-  font-size:22px
-}
-.discovery-note p:not(.eyebrow){
-  font-size:12px;
-  color:var(--muted);
-  max-width:620px;
-  margin-top:10px
-}
-.subtle-tag{
-  font:7px var(--mono);
-  letter-spacing:1px;
-  color:#777;
-  margin-left:auto;
-  white-space:nowrap;
-  padding-top:4px
 }
 .experience-list{
   border-top:1px solid var(--line)
@@ -697,8 +631,9 @@ button{
   margin-top:55px;
   padding-top:30px
 }
-.skills-row>.eyebrow{
-  font-size:8px
+.skills-heading{
+  font-size:24px;
+  margin-bottom:26px
 }
 .skill-groups{
   display:grid;
@@ -715,57 +650,42 @@ button{
   line-height:1.9;
   color:var(--muted)
 }
-.roadmap-grid{
-  display:flex;
-  flex-direction:column;
-  gap:35px
-}
-.roadmap-item{
-  position:relative;
+.career-copy{
+  max-width:760px;
+  margin-inline:auto;
   border-top:1px solid var(--line);
-  padding:32px 0 0 65px;
-  max-width:850px
-}
-.roadmap-node{
-  position:absolute;
-  top:29px;
-  left:0;
-  font:10px var(--mono);
-  color:var(--blue)
-}
-.roadmap-item .eyebrow{
-  font-size:8px;
-  margin-bottom:15px
-}
-.roadmap-item h3{
-  font-size:30px;
-  margin-bottom:20px
-}
-.roadmap-item>p:not(.eyebrow){
-  font-size:14px;
+  padding-top:30px;
+  font-size:16px;
   color:var(--muted);
-  line-height:1.9;
-  max-width:720px
+  line-height:2
 }
-.resume-layout{
-  max-width:740px
-}
-.resume-layout h1{
-  font-size:clamp(44px,6vw,76px);
-  line-height:1.04
-}
-.resume-layout>div>p:not(.eyebrow){
-  max-width:560px;
-  font-size:15px;
-  color:var(--muted);
-  margin-top:27px;
-  line-height:1.9
-}
-.resume-actions{
+.resume-heading{
   display:flex;
   flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
   gap:14px;
-  margin-top:32px
+  margin-bottom:30px
+}
+.resume-heading h1{
+  font-size:clamp(38px,5vw,64px)
+}
+.resume-preview{
+  display:block;
+  width:100%;
+  height:80svh;
+  min-height:500px;
+  border:1px solid var(--line);
+  border-radius:4px;
+  background:#141414
+}
+.resume-preview p{
+  padding:24px;
+  color:var(--muted)
+}
+.resume-preview p a{
+  color:var(--blue);
+  text-decoration:underline
 }
 .button{
   display:inline-flex;
@@ -794,7 +714,7 @@ button{
   padding:8px 0 30px
 }
 .contact-section h1{
-  font-size:clamp(56px,7vw,92px);
+  font-size:clamp(38px,5vw,64px);
   line-height:1.05
 }
 .contact-section h1 em{
@@ -815,17 +735,18 @@ button{
 }
 .contact-links{
   display:flex;
+  flex-wrap:wrap;
   gap:30px;
   margin-top:25px;
-  font-size:12px;
+  font-size:24px;
   color:var(--muted)
 }
-.contact-links a:hover,.contact-links button:hover{
-  color:#fff
+.contact-links a{
+  padding-block:8px;
+  transition:color .25s ease
 }
-.contact-links button{
-  padding:0;
-  font:inherit
+.contact-links a:hover{
+  color:var(--blue)
 }
 .detail-footer{
   max-width:1040px;
@@ -900,6 +821,43 @@ button{
   font-size:12px;
   line-height:1.7
 }
+.project-figure{
+  margin:0 0 44px
+}
+.project-image-frame{
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:4px;
+  background:#0a0a0a
+}
+.project-image-frame img{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:2px;
+  background:#fff
+}
+.project-figure figcaption{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:8px 20px;
+  padding-top:12px;
+  font-size:12px;
+  line-height:1.6;
+  color:var(--muted)
+}
+.project-figure figcaption a{
+  padding-block:6px;
+  font:10px/1.6 var(--mono);
+  color:var(--text);
+  white-space:nowrap;
+  transition:color .2s
+}
+.project-figure figcaption a span,.project-figure figcaption a:hover{
+  color:var(--blue)
+}
 .case-copy{
   max-width:760px
 }
@@ -935,12 +893,6 @@ button{
   .chip-core h1{
     font-size:74px
   }
-  .port-work,.port-about{
-    left:20%
-  }
-  .port-roadmap,.port-resume{
-    left:80%
-  }
 }
 @media(max-width:1150px){
   .chip-core{
@@ -952,18 +904,6 @@ button{
   }
   .port strong{
     font-size:22px
-  }
-  .port-work,.port-about{
-    left:16%
-  }
-  .port-roadmap,.port-resume{
-    left:84%
-  }
-  .port-caption{
-    font-size:8px
-  }
-  .home-header,.home-footer{
-    padding-inline:30px
   }
   .detail-nav,.content-shell,.detail-footer{
     margin-inline:40px
@@ -983,26 +923,6 @@ button{
   }
 }
 @media(max-width:760px){
-  .home-header{
-    height:60px;
-    padding-inline:22px
-  }
-  .home-mark{
-    font-size:25px
-  }
-  .home-header>p{
-    font-size:6px;
-    letter-spacing:.6px
-  }
-  .home-header>p span{
-    padding-inline:3px
-  }
-  .header-contact{
-    font-size:9px
-  }
-  .header-contact span{
-    margin-left:4px
-  }
   .chip-core{
     width:240px;
     height:218px
@@ -1029,44 +949,33 @@ button{
     font-size:18px;
     letter-spacing:-.4px
   }
-  .port-index{
-    font-size:6px;
-    margin-bottom:4px
-  }
-  .port-caption{
-    font-size:7px;
-    margin-top:5px
-  }
   .port-arrow{
     font-size:10px;
     margin-left:7px
   }
-  .port-work,.port-about{
-    left:15%
+  .port-work,.port-about,.port-experience{
+    top:9%
   }
-  .port-roadmap,.port-resume{
-    left:85%
+  .port-roadmap,.port-resume,.port-contact{
+    top:91%
   }
-  .port-experience{
-    top:8%
+  .port-work,.port-roadmap{
+    left:17%
   }
-  .port-contact{
-    top:92%
+  .port-about,.port-resume{
+    left:50%
   }
-  .home-footer{
-    height:52px;
-    padding-inline:22px
+  .port-experience,.port-contact{
+    left:83%
   }
-  .home-footer>p{
-    font-size:6px;
-    letter-spacing:.8px
+  .home-intro{
+    width:min(580px,calc(100% - 56px));
+    padding:18px 22px;
+    margin-top:14px
   }
-  .home-footer button{
-    font-size:7px;
-    gap:7px
-  }
-  .footer-hint{
-    display:none
+  #personal-bio{
+    font-size:13px;
+    line-height:1.7
   }
   .detail-header{
     height:72px;
@@ -1114,25 +1023,6 @@ button{
   .project-footer{
     font-size:7px
   }
-  .discovery-note{
-    gap:16px;
-    flex-wrap:wrap;
-    margin-top:0;
-    padding-top:27px
-  }
-  .discovery-note>div{
-    flex:1
-  }
-  .discovery-note h3{
-    font-size:22px
-  }
-  .discovery-note p:not(.eyebrow){
-    font-size:11px
-  }
-  .subtle-tag{
-    font-size:6px;
-    margin-left:34px
-  }
   .experience-row{
     grid-template-columns:1fr;
     gap:24px;
@@ -1170,42 +1060,13 @@ button{
   .skill-groups h3{
     margin-bottom:8px
   }
-  .roadmap-grid{
-    gap:28px
-  }
-  .roadmap-item{
-    padding:27px 0 0 36px
-  }
-  .roadmap-node{
-    top:29px;
-    font-size:8px
-  }
-  .roadmap-item .eyebrow{
-    font-size:7px;
-    letter-spacing:.7px
-  }
-  .roadmap-item h3{
-    font-size:27px
-  }
-  .roadmap-item>p:not(.eyebrow){
-    font-size:13px
-  }
-  .resume-layout h1{
-    font-size:52px
-  }
-  .resume-layout>div>p:not(.eyebrow){
-    font-size:13px
-  }
-  .resume-actions{
-    gap:10px
-  }
   .button{
     font-size:11px;
     padding:12px 16px;
     gap:20px
   }
   .contact-section h1{
-    font-size:61px
+    font-size:38px
   }
   .contact-email{
     font-size:21px;
@@ -1213,7 +1074,7 @@ button{
   }
   .contact-links{
     gap:25px;
-    font-size:11px
+    font-size:21px
   }
   .detail-footer{
     margin-inline:24px;
@@ -1241,6 +1102,15 @@ button{
     font-size:7px;
     margin-bottom:5px
   }
+  .project-figure{
+    margin-bottom:32px
+  }
+  .project-image-frame{
+    padding:6px
+  }
+  .project-figure figcaption{
+    font-size:11px
+  }
   .case-copy h2{
     font-size:25px
   }
@@ -1252,15 +1122,6 @@ button{
   }
 }
 @media(max-width:540px){
-  .home-header>p{
-    left:auto;
-    right:22px;
-    transform:none;
-    font-size:6px
-  }
-  .header-contact{
-    display:none
-  }
   .chip-core{
     width:214px;
     height:200px
@@ -1284,41 +1145,12 @@ button{
   .port strong{
     font-size:15px
   }
-  .port-caption{
-    display:none
-  }
-  .port-index{
-    font-size:6px;
-    margin-bottom:5px
-  }
   .port-arrow{
     font-size:9px;
     margin-left:5px;
     opacity:1;
     color:#888;
     transform:none
-  }
-  .port-work{
-    left:19%;
-    top:24%
-  }
-  .port-about{
-    left:19%;
-    top:76%
-  }
-  .port-roadmap{
-    left:81%;
-    top:24%
-  }
-  .port-resume{
-    left:81%;
-    top:76%
-  }
-  .port-experience{
-    top:7%
-  }
-  .port-contact{
-    top:93%
   }
   .pins-left,.pins-right{
     height:58%;
@@ -1330,12 +1162,6 @@ button{
   }
 }
 @media(max-height:600px){
-  .home-header{
-    height:48px
-  }
-  .home-footer{
-    height:38px
-  }
   .chip-core{
     height:180px;
     width:280px
@@ -1359,18 +1185,13 @@ button{
   .port strong{
     font-size:17px
   }
-  .port-caption{
-    display:none
+  .home-intro{
+    margin-top:12px;
+    padding-block:18px
   }
-  .port-index{
-    font-size:6px;
-    margin-bottom:3px
-  }
-  .port-experience{
-    top:7%
-  }
-  .port-contact{
-    top:93%
+  #personal-bio{
+    font-size:12px;
+    line-height:1.6
   }
 }
 @media(max-height:600px) and (max-width:540px){
@@ -1384,18 +1205,6 @@ button{
   .port strong{
     font-size:14px
   }
-  .port-work,.port-roadmap{
-    top:23%
-  }
-  .port-about,.port-resume{
-    top:77%
-  }
-  .home-footer>p{
-    font-size:5px
-  }
-  .home-footer button{
-    font-size:6px
-  }
   .core-kicker{
     font-size:5px
   }
@@ -1404,6 +1213,24 @@ button{
   }
   .core-fields{
     font-size:4px
+  }
+}
+@media(max-height:560px) and (max-width:760px){
+  .chip-core{
+    width:180px;
+    height:120px
+  }
+  .chip-core h1{
+    font-size:38px
+  }
+  .home-intro{
+    padding:12px 18px
+  }
+  .port-work,.port-about,.port-experience{
+    top:6%
+  }
+  .port-roadmap,.port-resume,.port-contact{
+    top:94%
   }
 }
 @media(prefers-reduced-motion:reduce){

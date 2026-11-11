@@ -7,21 +7,21 @@
 <title>Computer engineering — Siddarth Kota</title>
 <meta name="description" content="Siddarth Kota, Georgia Tech computer engineering student. RTL design, verification, processors, and AI accelerators.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=2">
-<script src="app.js?v=2" defer>
+<link rel="stylesheet" href="style.css?v=8">
+<script src="app.js?v=6" defer>
 </script>
 </head>
 <body class="home">
 <a class="skip-link" href="#chip-menu">Skip to navigation</a>
-<header class="home-header">
-<a class="home-mark" href="index.html" aria-label="Siddarth Kota, home">sk<span>_</span>
-</a>
-<p>COMPUTER ENGINEERING <span>/</span> GEORGIA TECH</p>
-<a class="header-contact" href="mailto:sidkota06@gmail.com">Say hello <span aria-hidden="true">↗</span>
-</a>
-</header>
-<main class="chip-stage" id="chip-stage">
+<main class="home-layout" id="home-board">
 <svg id="routing-layer" aria-hidden="true" focusable="false">
+<defs>
+<mask id="trace-clearance" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
+<rect id="trace-mask-base" fill="white"/>
+<g id="trace-cutouts" fill="black"></g>
+</mask>
+</defs>
+<g id="intro-traces" mask="url(#trace-clearance)"></g>
 <g id="route-lines">
 </g>
 <g id="ambient-signals">
@@ -29,6 +29,7 @@
 <g id="active-signal">
 </g>
 </svg>
+<div class="chip-stage" id="chip-stage">
 <div class="chip-core" id="chip-core">
 <span class="pin-bank pins-top" aria-hidden="true">
 </span>
@@ -38,62 +39,41 @@
 </span>
 <span class="pin-bank pins-right" aria-hidden="true">
 </span>
-<p class="core-kicker">
-<span class="status-dot" aria-hidden="true">
-</span> ALWAYS CURIOUS.</p>
-<h1>Siddarth<br>Kota<span class="name-stop">.</span>
-</h1>
-<p class="core-description">From RTL to real hardware.</p>
-<p class="core-fields">DESIGN · VERIFY · ITERATE</p>
+<h1>Siddarth<br>Kota</h1>
 </div>
 <nav id="chip-menu" class="chip-menu" aria-label="Explore my portfolio">
 <a class="port port-work" data-route="work" href="work.html">
-<span class="port-index">01</span>
-<strong>Work<span class="port-arrow" aria-hidden="true">↗</span>
+<strong>Projects<span class="port-arrow" aria-hidden="true">↗</span>
 </strong>
-<span class="port-caption">Things I’ve built</span>
 </a>
 <a class="port port-about" data-route="about" href="about.html">
-<span class="port-index">02</span>
 <strong>About<span class="port-arrow" aria-hidden="true">↗</span>
 </strong>
-<span class="port-caption">The person behind the pins</span>
 </a>
 <a class="port port-experience" data-route="experience" href="experience.html">
-<span class="port-index">03</span>
 <strong>Experience<span class="port-arrow" aria-hidden="true">↗</span>
 </strong>
-<span class="port-caption">Where I’m learning</span>
 </a>
 <a class="port port-roadmap" data-route="roadmap" href="roadmap.html">
-<span class="port-index">04</span>
-<strong>Roadmap<span class="port-arrow" aria-hidden="true">↗</span>
+<strong>Career goals<span class="port-arrow" aria-hidden="true">↗</span>
 </strong>
-<span class="port-caption">What comes next</span>
 </a>
 <a class="port port-resume" data-route="resume" href="resume.html">
-<span class="port-index">05</span>
 <strong>Resume<span class="port-arrow" aria-hidden="true">↗</span>
 </strong>
-<span class="port-caption">The one-page version</span>
 </a>
 <a class="port port-contact" data-route="contact" href="contact.html">
-<span class="port-index">06</span>
 <strong>Contact<span class="port-arrow" aria-hidden="true">↗</span>
 </strong>
-<span class="port-caption">An open connection</span>
 </a>
 </nav>
 <p id="route-status" class="sr-only" role="status" aria-live="polite">
 </p>
+</div>
+<header class="home-intro" id="home-intro" aria-label="Quick introduction">
+<!-- Edit the paragraph below to update your quick introduction. -->
+<p id="personal-bio">I’m a junior at Georgia Tech pursuing a B.S. in Computer Engineering, with graduation expected in May 2028. I’m interested in silicon design and verification. Through clubs, projects, research, and internships, I’ve explored computer architecture, hardware design, and validation.</p>
+</header>
 </main>
-<footer class="home-footer">
-<p>ONE BIT AT A TIME.</p>
-<span class="footer-hint">Pick a connection. See where it goes.</span>
-<button id="motion-toggle" aria-pressed="true">
-<span class="motion-symbol" aria-hidden="true">Ⅱ</span>
-<span data-motion-label>Pause motion</span>
-</button>
-</footer>
 </body>
 </html>

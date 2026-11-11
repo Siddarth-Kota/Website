@@ -4,18 +4,19 @@
   function init() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const stage = document.getElementById('chip-stage');
+    const board = document.getElementById('home-board') || stage;
+    const intro = document.getElementById('home-intro');
     const core = document.getElementById('chip-core');
     const svg = document.getElementById('routing-layer');
-    const motionButton = document.getElementById('motion-toggle');
-    const motionLabel = motionButton?.querySelector('[data-motion-label]');
     const status = document.getElementById('route-status');
     let motion = !reduced.matches;
-    let userSetMotion = false;
     let frame = 0;
     let lastTime = 0;
     let routes = [];
     let selected = null;
     let hovered = null;
+    let navigationTimer = 0;
+    let leavingHref = null;
     const NS = 'http://www.w3.org/2000/svg';
 
     function node(name, attributes = {}) {
@@ -25,21 +26,37 @@
     }
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-    function setMotion(enabled) {
-      motion = enabled;
-      motionButton?.setAttribute('aria-pressed', String(enabled));
-      if (motionLabel) motionLabel.textContent = enabled ? 'Pause motion' : 'Resume motion';
-      const symbol = motionButton?.querySelector('.motion-symbol');
-      if (symbol) symbol.textContent = enabled ? 'Ⅱ' : '▷';
-      sync();
-    }
-    motionButton?.addEventListener('click', () => {
-      userSetMotion = true;
-      setMotion(!motion);
-    });
     reduced.addEventListener?.('change', (event) => {
-      if (!userSetMotion || event.matches) setMotion(!event.matches);
+      motion = !event.matches;
+      sync();
       if (event.matches && selected) completeNavigation();
+      if (event.matches && leavingHref) {
+        clearTimeout(navigationTimer);
+        window.location.assign(leavingHref);
+      }
+    });
+
+    function navigate(href) {
+      if (leavingHref) return;
+      if (reduced.matches) { window.location.assign(href); return; }
+      leavingHref = href;
+      document.body.classList.add('is-leaving');
+      navigationTimer = window.setTimeout(() => window.location.assign(href), 180);
+    }
+
+    // Let ordinary internal links fade between pages. Downloads, email,
+    // anchor links, and opening a new tab retain their browser behavior.
+    document.addEventListener('click', (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || reduced.matches) return;
+      const link = event.target.closest('a[href]');
+      if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+      const destination = new URL(link.href, window.location.href);
+      if (destination.origin !== window.location.origin || !['http:', 'https:', 'file:'].includes(destination.protocol)) return;
+      if (destination.pathname === window.location.pathname && destination.search === window.location.search) return;
+      if (/\.[^/]+$/.test(destination.pathname) && !destination.pathname.endsWith('.html')) return;
+      event.preventDefault();
+      // A homepage route already owns the transition while its pulse runs.
+      if (!selected) navigate(destination.href);
     });
 
     // Rounded right-angle routes are calculated from the actual chip and label
@@ -64,7 +81,7 @@
     }
 
     function geometry(link) {
-      const bounds = stage.getBoundingClientRect();
+      const bounds = board.getBoundingClientRect();
       const chip = core.getBoundingClientRect();
       const label = link.getBoundingClientRect();
       const center = { x: chip.left + chip.width / 2 - bounds.left,
@@ -94,11 +111,71 @@
       return { d: roundedPath(points), end };
     }
 
+    // The two frame traces start at the centers of painted bottom pins.
+    // Pin spacing comes from the same CSS values that draw the pin bank.
+    function buildIntroTraces(bounds) {
+      const frameLines = document.getElementById('intro-traces');
+      const cutouts = document.getElementById('trace-cutouts');
+      const mask = document.getElementById('trace-clearance');
+      const maskBase = document.getElementById('trace-mask-base');
+      const bottomPins = core.querySelector('.pins-bottom');
+      if (!intro || !bottomPins || !frameLines || !cutouts || !mask || !maskBase) return;
+      frameLines.replaceChildren();
+      cutouts.replaceChildren();
+      [mask, maskBase].forEach((element) => {
+        element.setAttribute('x', '0');
+        element.setAttribute('y', '0');
+        element.setAttribute('width', String(bounds.width));
+        element.setAttribute('height', String(bounds.height));
+      });
+      const relative = (element) => {
+        const rect = element.getBoundingClientRect();
+        return { left: rect.left - bounds.left, top: rect.top - bounds.top,
+          right: rect.right - bounds.left, bottom: rect.bottom - bounds.top,
+          width: rect.width, height: rect.height };
+      };
+      [core, intro, ...stage.querySelectorAll('[data-route]')].filter(Boolean).forEach((element) => {
+        const rect = relative(element);
+        const gap = element === intro ? 0 : 7;
+        cutouts.append(node('rect', { x: rect.left - gap, y: rect.top - gap,
+          width: rect.width + gap * 2, height: rect.height + gap * 2, rx: 3 }));
+      });
+      const chip = relative(core);
+      const pins = relative(bottomPins);
+      const copy = relative(intro);
+      const centerX = chip.left + chip.width / 2;
+      const pinStyle = window.getComputedStyle(bottomPins);
+      const pitch = parseFloat(pinStyle.getPropertyValue('--pin-pitch'));
+      const start = parseFloat(pinStyle.getPropertyValue('--pin-start'));
+      const end = parseFloat(pinStyle.getPropertyValue('--pin-end'));
+      if (!Number.isFinite(pitch) || pitch <= 0 || !Number.isFinite(start) || !Number.isFinite(end)) return;
+      const pinCenters = [];
+      for (let offset = (start + end) / 2; offset + (end - start) / 2 <= pins.width; offset += pitch) {
+        pinCenters.push(pins.left + offset);
+      }
+      if (pinCenters.length < 2) return;
+      const copyCenterX = copy.left + copy.width / 2;
+      [-1, 1].forEach((side) => {
+        const targetX = centerX + side * chip.width * .24;
+        const x = pinCenters.reduce((nearest, pin) => Math.abs(pin - targetX) < Math.abs(nearest - targetX) ? pin : nearest);
+        const elbowY = copy.top - 12;
+        const edgeX = side < 0 ? copy.left - 12 : copy.right + 12;
+        const bottomY = copy.bottom + 12;
+        const points = [{ x, y: pins.bottom - .5 }, { x, y: elbowY },
+          { x: edgeX, y: elbowY }, { x: edgeX, y: bottomY },
+          { x: copyCenterX + side * 24, y: bottomY }];
+        frameLines.append(node('path', { d: roundedPath(points), class: 'intro-trace' }));
+        const endpoint = points[points.length - 1];
+        frameLines.append(node('circle', { cx: endpoint.x, cy: endpoint.y, r: 1.8, class: 'intro-terminal' }));
+      });
+    }
+
     function rebuild() {
       if (!stage || !core || !svg) return;
-      const bounds = stage.getBoundingClientRect();
+      const bounds = board.getBoundingClientRect();
       if (!bounds.width || !bounds.height) return;
       svg.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height}`);
+      buildIntroTraces(bounds);
       const lines = document.getElementById('route-lines');
       const dots = document.getElementById('ambient-signals');
       lines.replaceChildren();
@@ -160,8 +237,12 @@
         cancelAnimationFrame(resizeFrame);
         resizeFrame = requestAnimationFrame(rebuild);
       };
-      if ('ResizeObserver' in window) new ResizeObserver(queueResize).observe(stage);
-      else window.addEventListener('resize', queueResize, { passive: true });
+      if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(queueResize);
+        observer.observe(board);
+        if (board !== stage) observer.observe(stage);
+        if (intro) observer.observe(intro);
+      } else window.addEventListener('resize', queueResize, { passive: true });
       document.fonts?.ready.then(queueResize);
       rebuild();
     }
@@ -172,7 +253,7 @@
       selected = null;
       cancelAnimationFrame(frame);
       frame = 0;
-      window.location.assign(href);
+      navigate(href);
     }
     function render(timestamp, delta) {
       routes.forEach((route) => {
@@ -220,6 +301,9 @@
     }
     document.addEventListener('visibilitychange', sync);
     window.addEventListener('pageshow', () => {
+      clearTimeout(navigationTimer);
+      leavingHref = null;
+      document.body.classList.remove('is-leaving');
       selected = null;
       stage?.classList.remove('is-routing');
       stage?.removeAttribute('aria-busy');
@@ -230,26 +314,7 @@
       if (status) status.textContent = '';
       sync();
     });
-    setMotion(motion);
-
-    const copy = document.getElementById('copy-email');
-    let reset;
-    copy?.addEventListener('click', async () => {
-      const label = copy.querySelector('[data-copy-label]');
-      try {
-        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
-        await navigator.clipboard.writeText('sidkota06@gmail.com');
-        if (label) label.textContent = 'Email copied';
-        copy.setAttribute('aria-label', 'Email copied to clipboard');
-        clearTimeout(reset);
-        reset = setTimeout(() => {
-          if (label) label.textContent = 'Copy email';
-          copy.removeAttribute('aria-label');
-        }, 2500);
-      } catch {
-        window.location.href = 'mailto:sidkota06@gmail.com';
-      }
-    });
+    sync();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
