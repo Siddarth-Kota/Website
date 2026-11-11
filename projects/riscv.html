@@ -7,8 +7,8 @@
 <title>5-stage pipelined RISC-V RV32I processor — Siddarth Kota</title>
 <meta name="description" content="Siddarth Kota, Georgia Tech computer engineering student. RTL design, verification, processors, and AI accelerators.">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../style.css?v=8">
-<script src="../app.js?v=6" defer>
+<link rel="stylesheet" href="../style.css?v=10">
+<script src="../app.js?v=10" defer>
 </script>
 </head>
 <body class="detail-page">
@@ -65,15 +65,15 @@
 <div class="case-copy">
 <section>
 <h2>The problem</h2>
-<p>When designing a processor, a standard core that computes 1 instruction at a time is simple but not efficient. This is because each instruction takes an entire clock cycle to complete leaving some components idle during that time. I intitially designed a 32-bit RISC-V core that supported all the base instructions to understand the fundamentals. After designing the basic core, I wanted to improve its performance and learn about the pipelining system that most modern processors use. By pipelining the CPU, I can allow multiple instructions to be processed simultaneously and minimize the amount of time the components of the processor are idle. However, this introduces complexity in managing data dependencies and control flow.</p>
+<p>When designing a processor, a standard core that computes one instruction at a time is simple but not efficient. Each instruction takes an entire clock cycle to complete, leaving some components idle during that time. I initially designed a 32-bit RISC-V core that supported all the base instructions to understand the fundamentals. After designing the basic core, I wanted to improve its performance and learn about pipelining, which most modern processors use. By pipelining the CPU, I can allow multiple instructions to be processed simultaneously and reduce the time its components spend idle. However, this introduces complexity in managing data dependencies and control flow.</p>
 </section>
 <section>
 <h2>The design</h2>
-<p>I implemented this processor in SystemVerilog, consisting of the traditional 5 stages of a pipelined design: IF (Instruction Fetch), ID (Instruction Decode), EX (Execute), MEM (Memory Access), and WB (Write Back). Each stage is responsible for a specific part of the instruction processing timeline and thus generally uses different components per stage. However, this comes with other challenges such as handling hazards with data conflicts, when an instruction requests data that is still being written and modified. To handle this, I implemented a forwarding unit that detects register dependencies and forwards data from the MEM and WB stages to the EX stage when needed. This reduced the amount of unnecessary stalls in the pipeline. Furthermore to improve performance, I also implemented a dynamic branch predictor which learns from past branch instruction outcomes to try and estimate whether a branch will be taken or not. By doing this it can reduce the amount of cycles lost to pipeline stalls, as incorrect branch predictions can force the processor to redirect execution and discard instructions from the incorrect path. To test this, I also implemented a comprehensive testbench system per module and the CPU as a whole. This has helped identify any functionality issues that may arise.</p>
+<p>I implemented this processor in SystemVerilog using the traditional five stages of a pipelined design: IF (Instruction Fetch), ID (Instruction Decode), EX (Execute), MEM (Memory Access), and WB (Write Back). Each stage is responsible for a specific part of instruction processing and generally uses different components. However, this introduces challenges such as hazards caused by data conflicts when an instruction requests data that is still being written or modified. To handle this, I implemented a forwarding unit that detects register dependencies and forwards data from the MEM and WB stages to the EX stage when needed. This reduced the number of unnecessary stalls in the pipeline. To further improve performance, I implemented a dynamic branch predictor that learns from previous branch outcomes to estimate whether a branch will be taken. This can reduce the number of cycles lost to pipeline stalls, since incorrect branch predictions can force the processor to redirect execution and discard instructions from the incorrect path. To test the design, I implemented comprehensive testbenches for individual modules and the CPU as a whole. These have helped identify functional issues.</p>
 </section>
 <section>
 <h2>The outcome</h2>
-<p>The current project combines the RV32I pipeline, dependency-handling mechanisms, and a verification environement. I am also currently working on implementing this core for FPGA and ASIC synthesis. This has required me to rewrite the RTL to take into account delays that come from memory, other components, and be more optomized to match and follow timing guidelines. The larger value of this project was to teach me the structures that go into a working processor, the steps the data takes while inside, and the trade-offs involved in processor design.</p>
+<p>The current project combines the RV32I pipeline, dependency-handling mechanisms, and a verification environment. I am also working on adapting this core for FPGA and ASIC synthesis. This has required me to rewrite the RTL to account for delays from memory and other components and to optimize the design to meet timing constraints. The larger value of this project was learning the structures that make up a working processor, the path data takes through it, and the trade-offs involved in processor design.</p>
 </section>
 </div>
 <div class="case-next">

@@ -7,8 +7,8 @@
 <title>Automated lab sensor — Siddarth Kota</title>
 <meta name="description" content="Siddarth Kota, Georgia Tech computer engineering student. RTL design, verification, processors, and AI accelerators.">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../style.css?v=8">
-<script src="../app.js?v=6" defer>
+<link rel="stylesheet" href="../style.css?v=10">
+<script src="../app.js?v=10" defer>
 </script>
 </head>
 <body class="detail-page">
@@ -32,8 +32,8 @@
 <a class="back-link" href="../work.html">← All projects</a>
 <header class="project-heading">
 <h1>Automated Lab Sensor</h1>
-<p class="lede">A custom PCB and ESP32-based sensor that automated noise, temperature, and humidity monitoring for AMD labs. This project allowed users to monitor environmental conditions in real-time and track any changes or issues over time.</p>
-<span class="text-status">Actively deployed and being used in some AMD labs in the Austin Area</span>
+<p class="lede">A custom PCB and ESP32-based sensor that automated noise, temperature, and humidity monitoring for AMD labs. The system allows users to monitor environmental conditions in real time and track changes or issues over time.</p>
+<span class="text-status">In active use in some AMD labs in the Austin area</span>
 </header>
 <dl class="project-facts">
 <div>
@@ -46,7 +46,7 @@
 </div>
 <div>
 <dt>MEASUREMENTS</dt>
-<dd>Noise + temperature</dd>
+<dd>Noise + temperature + humidity</dd>
 </div>
 <div>
 <dt>TIMELINE</dt>
@@ -65,15 +65,15 @@
 <div class="case-copy">
 <section>
 <h2>The problem</h2>
-<p>Laboratory conditions are easier to understand when observations are recorded consistently, tracked, and shown visually over-time to analyze. Noise, temperature, and humidity are three useful measurements, but before this project, the managers at the AMD labs lacked a easy open source solution to track this data for their use. As such, I set out to design a solution that would automate this process and was easy to deploy and connect to using an ESP32 with ethernet connectivity.</p>
+<p>Laboratory conditions are easier to understand when observations are recorded consistently, tracked, and visualized over time. Noise, temperature, and humidity are three useful measurements, but before this project, managers at the AMD labs lacked a simple open-source solution for tracking this data. I set out to automate this process with a solution that was easy to deploy and access, using an ESP32 with Ethernet connectivity.</p>
 </section>
 <section>
 <h2>The design</h2>
-<p>The implementation used an ESP32 and a custom PCB, with several sensor modules and display interfaces integrated to track and show the surrounding environment. For this project i used an ESP32 POE module that links to the internet via an ethernet connection and also gets power from the same connection. Then using some C++ and YAML code, I was able to configure the sensor network to automatically collect and transmit data in an easy to view format.</p>
+<p>The implementation used an ESP32 and a custom PCB, with several sensor modules and display interfaces integrated to monitor and display environmental conditions. For this project, I used an ESP32 Power over Ethernet (PoE) module that connects to the internet through Ethernet and receives power through the same cable. Using C++ and YAML, I configured the sensor network to automatically collect and transmit data in a format that is easy to view.</p>
 </section>
 <section>
 <h2>The outcome</h2>
-<p>The completed project demonstrates a working automated lab sensor that effectively monitors and records environmental conditions in real-time. The integration of embedded hardware and software provided a practical solution for laboratory monitoring needs. Overall, this device is still in use in some AMD labs in the austin area and actively tracks and provides infomration allowing managers to target any issues they see and address them effectively.</p>
+<p>The completed project monitors and records environmental conditions in real time. Integrating embedded hardware and software provided a practical solution for laboratory monitoring. The device remains in use in some AMD labs in the Austin area, where it provides information that helps managers identify and address issues.</p>
 </section>
 </div>
 <div class="case-next">

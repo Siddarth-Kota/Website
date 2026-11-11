@@ -8,7 +8,7 @@ A static computer engineering portfolio. The homepage fits one screen and resemb
 
 - `index.html`: homepage name, six chip navigation links, and the quick introduction beneath the chip. Edit the paragraph with `id="personal-bio"` for the introduction.
 - `style.css`: black/white/blue palette, chip layout, typography, responsive rules, and content-page styles.
-- `app.js`: responsive navigation traces, two pin-connected traces framing the introduction, ambient data signals, pulse-before-navigation, and page fade transitions.
+- `app.js`: responsive navigation traces, two pin-connected traces framing the introduction, ambient data signals, pulse-before-navigation, destination prefetching, and navigation fallbacks.
 - `work.html`: project list, with each LINK opening its detailed project explanation.
 - `projects/riscv.html`, `projects/audio.html`, `projects/sensor.html`: detailed project explanations.
 - Project images use a shared `.project-figure` immediately after the project facts and before the write-up, with captions, alt text, and full-size links. The images are `assets/riscv-schematic.png` (CPU schematic), `assets/audio-spectrum.png` (DSP test setup), and `assets/lab-sensor.png` (ESP32 PCB render). Keep image `width` and `height` attributes in sync with replacement files so the browser reserves the correct space.
@@ -35,7 +35,9 @@ The files in this repository are the static site source. The resume PDF is serve
 
 ## Accessibility and motion
 
-Section links are real URLs and remain usable without JavaScript. Keyboard focus is visible. Ambient signals follow reduced-motion preferences and stop in hidden tabs. With motion enabled, a homepage click completes its blue trace pulse before a short fade; content pages also fade between internal links. Reduced motion skips the pulse, fades, and entry animation. Ctrl/Cmd-click, external links, downloads, email links, and same-page anchors retain the browser's normal behavior.
+Section links are real URLs and remain usable without JavaScript. Keyboard focus is visible. Ambient signals follow reduced-motion preferences and stop in hidden tabs. Over HTTP, internal navigation fetches the destination HTML and swaps the page body without reloading the document. The current page stays visible while the destination loads. View Transitions animate the swap with a crossfade and slight vertical movement; Web Animations provide a fallback. The shared header, navigation, and footer transition independently. Destination HTML is prefetched on hover, keyboard focus, and pulse activation. Direct navigation remains a fallback for fetch failures and `file://` previews.
+
+Reduced motion skips the animations while retaining navigation in place. Ctrl/Cmd-click, external links, downloads, email links, and same-page anchors retain the browser's normal behavior. Page titles, URLs, keyboard focus, and scroll positions update during navigation; Back and Forward restore the corresponding page and scroll position. Page-specific listeners, observers, and animation frames are cleaned up during each swap. Implementation reference: [View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API/Using).
 
 ## Content still to complete
 

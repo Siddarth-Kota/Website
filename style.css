@@ -1,4 +1,25 @@
 @import url('assets/fonts.css');
+@view-transition{
+  navigation:auto
+}
+::view-transition-group(*){
+  animation-duration:.36s;
+  animation-timing-function:cubic-bezier(.22,.7,.2,1)
+}
+::view-transition-old(root){
+  animation:page-out .28s ease both
+}
+::view-transition-new(root){
+  animation:page-in .36s cubic-bezier(.22,.7,.2,1) both
+}
+@keyframes page-out{
+  from{opacity:1;transform:translateY(0)}
+  to{opacity:0;transform:translateY(-8px)}
+}
+@keyframes page-in{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
 :root{
   --bg:#050505;
   --text:#f2f2f2;
@@ -30,6 +51,18 @@ body.is-leaving{
 }
 .home-layout,.content-shell{
   animation:page-arrive .42s cubic-bezier(.2,.7,.2,1)
+}
+.native-transitions .home-layout,.native-transitions .content-shell{
+  animation:none
+}
+.detail-header{
+  view-transition-name:site-header
+}
+.detail-nav{
+  view-transition-name:section-navigation
+}
+.detail-footer{
+  view-transition-name:site-footer
 }
 @keyframes page-arrive{
   from{opacity:0;translate:0 8px}
@@ -1234,6 +1267,12 @@ button{
   }
 }
 @media(prefers-reduced-motion:reduce){
+  @view-transition{
+    navigation:none
+  }
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){
+    animation:none!important
+  }
   *,*::before,*::after{
     animation:none!important;
     transition:none!important

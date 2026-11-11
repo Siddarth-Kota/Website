@@ -1,7 +1,148 @@
 (() => {
   'use strict';
 
+  const nativeTransitions = 'CSSViewTransitionRule' in window && ['http:', 'https:'].includes(window.location.protocol);
+  const softNavigation = ['http:', 'https:'].includes(window.location.protocol) &&
+    typeof window.fetch === 'function' && typeof window.DOMParser === 'function';
+  if (nativeTransitions || softNavigation) document.documentElement.classList.add('native-transitions');
+  const pageCache = new Map();
+  let disposePage = () => {};
+  let changingPage = false;
+  let queuedNavigation = null;
+  let scrollFrame = 0;
+  let activeTransition = null;
+  let activeAnimation = null;
+  let renderedHref = window.location.href.split('#')[0];
+
+  async function loadPage(href) {
+    const url = new URL(href, window.location.href);
+    url.hash = '';
+    if (!pageCache.has(url.href)) {
+      const request = (async () => {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 10000);
+        try {
+          const response = await window.fetch(url.href, {
+            credentials: 'same-origin', headers: { Accept: 'text/html' }, signal: controller.signal
+          });
+          if (!response.ok || !response.headers.get('content-type')?.includes('text/html')) throw new Error('Page unavailable');
+          const source = new window.DOMParser().parseFromString(await response.text(), 'text/html');
+          if (!source.body.matches('.home, .detail-page') || !source.querySelector('main')) throw new Error('Not a portfolio page');
+          // Make page-relative assets safe when moving between / and /projects/.
+          source.body.querySelectorAll('[href], [src], object[data]').forEach((element) => {
+            ['href', 'src', 'data'].forEach((attribute) => {
+              if (element.hasAttribute(attribute)) {
+                element.setAttribute(attribute, new URL(element.getAttribute(attribute), response.url || url.href).href);
+              }
+            });
+          });
+          source.body.querySelectorAll('script').forEach((script) => script.remove());
+          return { body: source.body, title: source.title,
+            description: source.querySelector('meta[name="description"]')?.content || '',
+            language: source.documentElement.lang || 'en' };
+        } finally {
+          clearTimeout(timeout);
+        }
+      })();
+      pageCache.set(url.href, request);
+      request.catch(() => pageCache.delete(url.href));
+    }
+    return pageCache.get(url.href);
+  }
+
+  function saveScroll() {
+    window.history.replaceState({ ...window.history.state,
+      portfolioScroll: { x: window.scrollX, y: window.scrollY } }, '', window.location.href);
+  }
+
+  async function changePage(href, options = {}) {
+    if (changingPage) { queuedNavigation = { href, options }; return; }
+    changingPage = true;
+    if (!options.traversal) saveScroll();
+    try {
+      const page = await loadPage(href);
+      if (queuedNavigation) return;
+      const update = () => {
+        disposePage();
+        if (!options.traversal) window.history.pushState({ portfolioScroll: { x: 0, y: 0 } }, '', href);
+        renderedHref = new URL(href, window.location.href).href.split('#')[0];
+        document.title = page.title;
+        document.documentElement.lang = page.language;
+        const description = document.querySelector('meta[name="description"]');
+        if (description) description.content = page.description;
+        document.body.replaceWith(document.adoptNode(page.body.cloneNode(true)));
+        disposePage = init();
+        window.scrollTo({ left: options.scroll?.x || 0, top: options.scroll?.y || 0, behavior: 'instant' });
+        const hash = new URL(href, window.location.href).hash;
+        if (hash && !options.scroll) {
+          try { document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ behavior: 'instant' }); } catch {}
+        }
+        const heading = document.querySelector('h1');
+        if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+      };
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduced && typeof document.startViewTransition === 'function') {
+        activeTransition = document.startViewTransition(update);
+        activeTransition.ready.catch(() => {});
+        await activeTransition.updateCallbackDone;
+        await activeTransition.finished.catch(() => {});
+      } else if (!reduced && document.body.animate) {
+        activeAnimation = document.body.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, fill: 'forwards' });
+        await activeAnimation.finished;
+        update();
+        activeAnimation = document.body.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+          { duration: 240, easing: 'ease-out' });
+        await activeAnimation.finished;
+      } else update();
+    } catch {
+      window.location.assign(href);
+    } finally {
+      activeTransition = null;
+      activeAnimation = null;
+      changingPage = false;
+      if (queuedNavigation) {
+        const next = queuedNavigation;
+        queuedNavigation = null;
+        changePage(next.href, next.options);
+      }
+    }
+  }
+
+  if (softNavigation) {
+    // These head assets stay mounted while the body changes.
+    document.querySelectorAll('link[href], script[src]').forEach((element) => {
+      const attribute = element.hasAttribute('href') ? 'href' : 'src';
+      element.setAttribute(attribute, new URL(element.getAttribute(attribute), window.location.href).href);
+    });
+    window.history.scrollRestoration = 'manual';
+    saveScroll();
+    window.addEventListener('popstate', (event) => {
+      if (window.location.href.split('#')[0] === renderedHref) {
+        const position = event.state?.portfolioScroll || { x: 0, y: 0 };
+        window.scrollTo({ left: position.x, top: position.y, behavior: 'instant' });
+        return;
+      }
+      activeTransition?.skipTransition();
+      activeAnimation?.finish();
+      changePage(window.location.href, { traversal: true, scroll: event.state?.portfolioScroll || { x: 0, y: 0 } });
+    });
+    window.addEventListener('scroll', () => {
+      if (changingPage) return;
+      cancelAnimationFrame(scrollFrame);
+      scrollFrame = requestAnimationFrame(saveScroll);
+    }, { passive: true });
+  }
+
   function init() {
+    const listeners = [];
+    let destroyed = false;
+    let resizeFrame = 0;
+    let observer = null;
+    const on = (target, type, listener, options) => {
+      if (!target?.addEventListener) return;
+      target.addEventListener(type, listener, options);
+      listeners.push(() => target.removeEventListener?.(type, listener, options));
+    };
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const stage = document.getElementById('chip-stage');
     const board = document.getElementById('home-board') || stage;
@@ -17,6 +158,7 @@
     let hovered = null;
     let navigationTimer = 0;
     let leavingHref = null;
+    const prefetched = new Set();
     const NS = 'http://www.w3.org/2000/svg';
 
     function node(name, attributes = {}) {
@@ -26,11 +168,13 @@
     }
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-    reduced.addEventListener?.('change', (event) => {
+    on(reduced, 'change', (event) => {
       motion = !event.matches;
       sync();
+      if (event.matches) activeTransition?.skipTransition();
+      if (event.matches) activeAnimation?.finish();
       if (event.matches && selected) completeNavigation();
-      if (event.matches && leavingHref) {
+      if (event.matches && leavingHref && navigationTimer) {
         clearTimeout(navigationTimer);
         window.location.assign(leavingHref);
       }
@@ -38,23 +182,49 @@
 
     function navigate(href) {
       if (leavingHref) return;
-      if (reduced.matches) { window.location.assign(href); return; }
       leavingHref = href;
+      if (softNavigation) { changePage(href); return; }
+      if (reduced.matches) { window.location.assign(href); return; }
+      // Direct navigation is a fallback for file previews or fetch failures.
+      if (nativeTransitions) { window.location.assign(href); return; }
       document.body.classList.add('is-leaving');
-      navigationTimer = window.setTimeout(() => window.location.assign(href), 180);
+      navigationTimer = window.setTimeout(() => {
+        navigationTimer = 0;
+        window.location.assign(href);
+      }, 180);
     }
 
-    // Let ordinary internal links fade between pages. Downloads, email,
-    // anchor links, and opening a new tab retain their browser behavior.
-    document.addEventListener('click', (event) => {
-      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || reduced.matches) return;
-      const link = event.target.closest('a[href]');
-      if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+    function pageDestination(link) {
+      if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return null;
       const destination = new URL(link.href, window.location.href);
-      if (destination.origin !== window.location.origin || !['http:', 'https:', 'file:'].includes(destination.protocol)) return;
-      if (destination.pathname === window.location.pathname && destination.search === window.location.search) return;
-      if (/\.[^/]+$/.test(destination.pathname) && !destination.pathname.endsWith('.html')) return;
+      if (destination.origin !== window.location.origin || !['http:', 'https:', 'file:'].includes(destination.protocol)) return null;
+      if (destination.pathname === window.location.pathname && destination.search === window.location.search) return null;
+      if (/\.[^/]+$/.test(destination.pathname) && !destination.pathname.endsWith('.html')) return null;
+      return destination;
+    }
+
+    function prefetchPage(destination) {
+      if (!destination || !['http:', 'https:'].includes(destination.protocol) || prefetched.has(destination.href)) return;
+      prefetched.add(destination.href);
+      if (softNavigation) { loadPage(destination.href).catch(() => {}); return; }
+      const preload = document.createElement('link');
+      preload.rel = 'prefetch';
+      preload.as = 'document';
+      preload.href = destination.href;
+      document.head.append(preload);
+    }
+    const warmLink = (event) => prefetchPage(pageDestination(event.target.closest?.('a[href]')));
+    on(document, 'pointerover', warmLink);
+    on(document, 'focusin', warmLink);
+
+    // Internal links swap page content without reloading the document.
+    // Downloads, email, anchors, and new tabs retain browser behavior.
+    on(document, 'click', (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || (reduced.matches && !softNavigation)) return;
+      const destination = pageDestination(event.target.closest?.('a[href]'));
+      if (!destination) return;
       event.preventDefault();
+      prefetchPage(destination);
       // A homepage route already owns the transition while its pulse runs.
       if (!selected) navigate(destination.href);
     });
@@ -209,17 +379,18 @@
           hovered = on ? link.dataset.route : null;
           routes.forEach((route) => route.path.classList.toggle('is-hovered', route.key === hovered));
         };
-        link.addEventListener('pointerenter', () => hover(true));
-        link.addEventListener('pointerleave', () => hover(false));
-        link.addEventListener('focus', () => hover(true));
-        link.addEventListener('blur', () => hover(false));
-        link.addEventListener('click', (event) => {
+        on(link, 'pointerenter', () => hover(true));
+        on(link, 'pointerleave', () => hover(false));
+        on(link, 'focus', () => hover(true));
+        on(link, 'blur', () => hover(false));
+        on(link, 'click', (event) => {
           // Preserve normal link behavior for modifiers, new tabs, and reduced
           // motion. Only ordinary navigation waits for the trace signal.
           if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
           if (reduced.matches || !motion || !routes.length) return;
           event.preventDefault();
-          if (selected) return;
+          if (selected || leavingHref) return;
+          prefetchPage(pageDestination(link));
           const route = routes.find((item) => item.key === link.dataset.route);
           if (!route) { window.location.assign(link.href); return; }
           selected = { key: route.key, href: link.href, start: performance.now(),
@@ -232,17 +403,17 @@
           sync();
         });
       });
-      let resizeFrame = 0;
       const queueResize = () => {
+        if (destroyed) return;
         cancelAnimationFrame(resizeFrame);
         resizeFrame = requestAnimationFrame(rebuild);
       };
       if ('ResizeObserver' in window) {
-        const observer = new ResizeObserver(queueResize);
+        observer = new ResizeObserver(queueResize);
         observer.observe(board);
         if (board !== stage) observer.observe(stage);
         if (intro) observer.observe(intro);
-      } else window.addEventListener('resize', queueResize, { passive: true });
+      } else on(window, 'resize', queueResize, { passive: true });
       document.fonts?.ready.then(queueResize);
       rebuild();
     }
@@ -292,6 +463,7 @@
       if ((motion || selected) && !document.hidden && routes.length) frame = requestAnimationFrame(tick);
     }
     function sync() {
+      if (destroyed) return;
       cancelAnimationFrame(frame);
       frame = 0;
       lastTime = 0;
@@ -299,8 +471,8 @@
       render(performance.now(), 0);
       if ((motion || selected) && !document.hidden) frame = requestAnimationFrame(tick);
     }
-    document.addEventListener('visibilitychange', sync);
-    window.addEventListener('pageshow', () => {
+    on(document, 'visibilitychange', sync);
+    on(window, 'pageshow', () => {
       clearTimeout(navigationTimer);
       leavingHref = null;
       document.body.classList.remove('is-leaving');
@@ -315,7 +487,16 @@
       sync();
     });
     sync();
+    return () => {
+      destroyed = true;
+      listeners.forEach((remove) => remove());
+      observer?.disconnect();
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(resizeFrame);
+      clearTimeout(navigationTimer);
+    };
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
+  const boot = () => { disposePage = init(); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+  else boot();
 })();
