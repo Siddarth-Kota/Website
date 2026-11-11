@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050505">
+<title>Hardware-accelerated audio spectrum analyzer — Siddarth Kota</title>
+<meta name="description" content="Siddarth Kota, Georgia Tech computer engineering student. RTL design, verification, processors, and AI accelerators.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../style.css?v=2">
+<script src="../app.js?v=2" defer>
+</script>
+</head>
+<body class="detail-page">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="detail-header">
+<a class="back-home" href="../index.html">
+<span aria-hidden="true">←</span> Home</a>
+<a class="small-name" href="../index.html">SIDDARTH KOTA<span aria-hidden="true">_</span>
+</a>
+</header>
+<nav class="detail-nav" aria-label="Portfolio sections">
+<a href="../work.html" aria-current="page">Work</a>
+<a href="../about.html">About</a>
+<a href="../experience.html">Experience</a>
+<a href="../roadmap.html">Roadmap</a>
+<a href="../resume.html">Resume</a>
+<a href="../contact.html">Contact</a>
+</nav>
+<main id="content" class="content-shell">
+<article class="case-study">
+<a class="back-link" href="../work.html">← All projects</a>
+<header class="project-heading">
+<p class="eyebrow">HARDWARE-ACCELERATED AUDIO SPECTRUM ANALYZER</p>
+<h1>Making sound visible.</h1>
+<p class="lede">I developed a Verilog audio-processing pipeline for my Digital Systems Design and Synthesis course. The system connects 24-bit I2S audio capture to frequency analysis and a 60 Hz VGA visualization, bringing together digital interfaces, fixed-point signal processing, and display timing.</p>
+<span class="text-status">Course project</span>
+</header>
+<dl class="project-facts">
+<div>
+<dt>CAPTURE</dt>
+<dd>24-bit I2S</dd>
+</div>
+<div>
+<dt>PROCESSING</dt>
+<dd>3-stage fixed-point DSP + FFT</dd>
+</div>
+<div>
+<dt>DISPLAY</dt>
+<dd>60 Hz VGA</dd>
+</div>
+<div>
+<dt>TIMELINE</dt>
+<dd>Nov 2025 — May 2026</dd>
+</div>
+</dl>
+<div class="case-copy">
+<section>
+<h2>The signal path</h2>
+<p>The design integrates 24-bit I2S capture, a three-stage fixed-point DSP pipeline, FFT-based frequency analysis, and VGA output. Each stage has a distinct responsibility: capture makes the incoming audio available digitally, signal processing prepares and transforms that information, and the visualization gives the frequency content a visible representation. The project connects these responsibilities into an end-to-end hardware path.</p>
+</section>
+<section>
+<h2>The engineering focus</h2>
+<p>An audio visualization depends on more than a transform alone. Its interfaces and stages must agree on how data moves through the system, and the display must operate at its required timing. This project gave me a concrete setting for connecting those constraints. The completed course project demonstrates how a digital hardware pipeline can turn a changing physical signal into a real-time visual output.</p>
+</section>
+</div>
+<div class="case-next">
+<a href="../work.html">← All projects</a>
+<a href="sensor.html">Next project →</a>
+</div>
+</article>
+</main>
+<footer class="detail-footer">
+<a href="../index.html">← Back to the chip</a>
+<a href="mailto:sidkota06@gmail.com">Say hello ↗</a>
+</footer>
+</body>
+</html>

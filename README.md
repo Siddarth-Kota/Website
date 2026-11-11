@@ -14,7 +14,7 @@ A static computer engineering portfolio. The homepage fits one screen and resemb
 - `about.html`, `experience.html`, `roadmap.html`: biography, work/research experience, and career goals.
 - `resume.html`: links to view and download the original resume.
 - `contact.html`: email, LinkedIn, and GitHub links.
-- `assets/`: original resume PDF, local fonts, their licenses, and favicon.
+- `assets/`: local fonts, their licenses, and favicon. The original resume PDF stays on the live website and is linked from `resume.html`; it is excluded from this public repository.
 - `vercel.json`: Vercel clean-URL settings.
 
 ## Run locally
@@ -29,7 +29,7 @@ Then visit http://localhost:8000.
 
 ## Deployment
 
-The files in this repository are the complete static site. Vercel uses the repository root, framework `Other`, and no build command. The site can also be hosted by any static host. Publishing source to GitHub and deploying to Vercel are separate operations until the project is linked to this repository through Vercel's Git settings.
+The files in this repository are the static site source. The resume PDF is served separately at the URL in `resume.html`. Vercel uses the repository root, framework `Other`, and no build command. The site can also be hosted by any static host. Publishing source to GitHub and deploying to Vercel are separate operations until the project is linked to this repository through Vercel's Git settings.
 
 ## Accessibility and motion
 
